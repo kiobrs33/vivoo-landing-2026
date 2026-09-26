@@ -1,0 +1,11 @@
+{
+  "description": "Vivoo Webpage",
+  "favicon": "/vivoo-favicon.png",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

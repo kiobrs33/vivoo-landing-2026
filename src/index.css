@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  --color-vivoo-ink: #0c0e2a;
+  --color-vivoo-cloud: #f5f7fc;
+  --color-vivoo-blue: #2563eb;
+  --color-vivoo-signal: #2ce5c9;
+  --color-vivoo-signal-dim: #a8e6dd;
+  --color-vivoo-mist: #e2e8f4;
+  --color-vivoo-menta: #e6f8f5;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Las anclas de sección quedan bajo el Navbar fijo */
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* Superficies del navegador con la paleta de marca */
+::selection {
+  background: #2ce5c9;
+  color: #0c0e2a;
+}
+
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  caret-color: #2563eb;
+  accent-color: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: #f5f7fc;
+  color: #0c0e2a;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbar but allow scrolling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(12, 14, 42, 0.15);
+  border-radius: 3px;
+}
+
+/* Acento de titular (DESIGN.md: La Regla del Titular con Acento) */
+.text-acento {
+  background: linear-gradient(135deg, #2ce5c9, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Acento del titular del héroe: blanco que se enciende en turquesa */
+.text-gradient-hero {
+  background: linear-gradient(135deg, #ffffff 30%, #2ce5c9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #2ce5c9, #a8e6dd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated float */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes volcan-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-10px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-18px) rotate(0deg);
+  }
+
+  75% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+}
+
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(0.6); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float { animation: float 5s ease-in-out infinite; }
+.animate-volcan-float {
+  animation: volcan-float 4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+.animate-spin-slow { animation: spin-slow 20s linear infinite; }
+.animate-fade-up { animation: fade-up 0.6s ease forwards; }
+.animate-fade-up-delay-1 { animation: fade-up 0.6s ease 0.1s forwards; opacity: 0; }
+.animate-fade-up-delay-2 { animation: fade-up 0.6s ease 0.2s forwards; opacity: 0; }
+.animate-fade-up-delay-3 { animation: fade-up 0.6s ease 0.35s forwards; opacity: 0; }
+.animate-fade-up-delay-4 { animation: fade-up 0.6s ease 0.5s forwards; opacity: 0; }
+
+/* Cielo eléctrico del Misti: resplandor de altura detrás del cráter y luz de la ciudad en la base */
+.misti-cielo {
+  position: absolute;
+  inset: -12% -22%;
+  background:
+    radial-gradient(ellipse 38% 30% at 52% 30%, rgba(170, 196, 252, 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 44% at 50% 40%, rgba(62, 110, 254, 0.5), rgba(135, 88, 238, 0.28) 55%, transparent 80%),
+    radial-gradient(ellipse 58% 16% at 50% 76%, rgba(44, 229, 201, 0.3), transparent 75%);
+  filter: blur(24px);
+}
+
+/* Halo pulsante del botón flotante de WhatsApp */
+@keyframes wa-ping {
+  0% { transform: scale(1); opacity: 0.6; }
+  70% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Respeta la preferencia del sistema de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .animate-float,
+  .animate-volcan-float,
+  .animate-spin-slow,
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-fade-up-delay-3,
+  .animate-fade-up-delay-4 {
+    animation: none;
+    opacity: 1;
+  }
+}
