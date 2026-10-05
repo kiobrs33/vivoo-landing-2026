@@ -1,5 +1,4 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import {
   BadgeCheck,
   Building2,
@@ -16,11 +15,34 @@ import {
   Smartphone,
   UserRound,
   IdCard,
-  Landmark,
-  ExternalLink,
+  Headset,
+  Scale,
 } from 'lucide-react'
-import { consumidor, osiptel, site, waLink } from '../config/site'
-import { Pendiente } from '../components/ui'
+import { site, waLink } from '../config/site'
+import { Pendiente, WhatsAppIcon } from '../components/ui'
+import ConsultaReclamo from '../components/ConsultaReclamo'
+import { api, ApiError } from '../lib/api'
+
+/** Lo que conviene saber antes de reclamar, con la norma que lo respalda. */
+const consideraciones: { texto: string; norma?: string }[] = [
+  {
+    texto: 'Responderemos tu reclamo en un plazo máximo de 15 días hábiles.',
+    norma: 'D.S. N° 011-2011-PCM, modificado por D.S. N° 101-2022-PCM',
+  },
+  {
+    texto:
+      'La velocidad mínima garantizada es el 70% de la contratada. Mídela conectado por cable: el WiFi y los equipos pueden reducirla.',
+    norma: 'Ley N° 31207',
+  },
+  {
+    texto:
+      'Completa todos los datos obligatorios y describe hechos concretos: fecha, servicio afectado y lo que ocurrió. Sin esos datos no podemos ubicar tu servicio.',
+  },
+  {
+    texto: 'La información que registres debe ser veraz.',
+    norma: 'Ley N° 29571, Código de Protección y Defensa del Consumidor',
+  },
+]
 
 type ComplaintForm = {
   tipo: 'RECLAMO' | 'QUEJA'
@@ -102,7 +124,10 @@ function validar(form: ComplaintForm): Errores {
     errores.documento = 'El DNI debe tener 8 dígitos.'
   } else if (form.tipoDocumento === 'RUC' && !/^\d{11}$/.test(form.documento.trim())) {
     errores.documento = 'El RUC debe tener 11 dígitos.'
-  } else if (form.documento.trim().length < 6) {
+  } else if (
+    (form.tipoDocumento === 'CE' || form.tipoDocumento === 'Pasaporte') &&
+    !/^[A-Za-z0-9-]{6,20}$/.test(form.documento.trim())
+  ) {
     errores.documento = 'El documento ingresado es muy corto.'
   }
 
@@ -134,20 +159,23 @@ function validar(form: ComplaintForm): Errores {
   return errores
 }
 
-/** Código provisional de seguimiento, generado en el navegador. */
-function generarCodigo(): string {
-  const fecha = new Date()
-  const anio = fecha.getFullYear()
-  const aleatorio = Math.floor(Math.random() * 900000 + 100000)
-  return `VIV-${anio}-${aleatorio}`
-}
+const fechaLarga = (iso: string) =>
+  new Date(iso).toLocaleDateString('es-PE', {
+    timeZone: 'America/Lima',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
 
 export default function ComplaintBook() {
   const [form, setForm] = useState<ComplaintForm>(initialForm)
   const [errores, setErrores] = useState<Errores>({})
   const [focused, setFocused] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
-  const [registro, setRegistro] = useState<{ codigo: string; fecha: string } | null>(null)
+  const [registro, setRegistro] = useState<{ codigo: string; fecha: string; vence: string } | null>(null)
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null)
+  // Campo trampa para bots: invisible para las personas, siempre vacío.
+  const [sitioWeb, setSitioWeb] = useState('')
   const [copiado, setCopiado] = useState(false)
 
   const fechaHoy = useMemo(
@@ -185,16 +213,28 @@ export default function ComplaintBook() {
     }
 
     setEnviando(true)
+    setErrorEnvio(null)
 
-    // TODO(backend): reemplazar por POST /api/complaints cuando el
-    // endpoint esté disponible. Por ahora la vista es solo interfaz:
-    // el código de seguimiento se genera localmente y no se persiste.
-    await new Promise(resolve => setTimeout(resolve, 700))
-
-    setRegistro({ codigo: generarCodigo(), fecha: fechaHoy })
-    setForm(initialForm)
-    setEnviando(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    try {
+      const data = await api<{ codigo: string; registradoEn: string; venceEn: string }>('/complaints', {
+        method: 'POST',
+        body: JSON.stringify({ ...form, sitioWeb }),
+      })
+      setRegistro({ codigo: data.codigo, fecha: fechaLarga(data.registradoEn), vence: fechaLarga(data.venceEn) })
+      setForm(initialForm)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (error) {
+      const e = error instanceof ApiError ? error : new ApiError(0, 'Ocurrió un error inesperado. Inténtalo de nuevo.')
+      if (Object.keys(e.errores).length > 0) {
+        setErrores(e.errores as Errores)
+        window.requestAnimationFrame(() =>
+          document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        )
+      }
+      setErrorEnvio(e.message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   const copiarCodigo = async () => {
@@ -215,7 +255,7 @@ export default function ComplaintBook() {
     return {
       width: '100%',
       background: 'white',
-      border: `1px solid ${tieneError ? '#ef4444' : activo ? '#2563eb' : '#e2e8f4'}`,
+      border: `1px solid ${tieneError ? '#ef4444' : activo ? '#0066ff' : '#e2e8f4'}`,
       borderRadius: '0.75rem',
       padding: '12px 16px',
       color: '#0c0e2a',
@@ -224,7 +264,7 @@ export default function ComplaintBook() {
       boxShadow: tieneError
         ? '0 0 0 3px rgba(239,68,68,0.1)'
         : activo
-          ? '0 0 0 3px rgba(37,99,235,0.12)'
+          ? '0 0 0 3px rgba(0,102,255,0.12)'
           : 'none',
       transition: 'border-color 0.2s, box-shadow 0.2s',
     }
@@ -244,13 +284,13 @@ export default function ComplaintBook() {
     <div style={{ background: '#f5f7fc', minHeight: '100vh' }}>
       {/* Hero */}
       <section className="relative pt-32 pb-16 px-4 text-center overflow-hidden rounded-b-[2rem]">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#1a3dff_0%,#3b2fd8_45%,#5c1fb8_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,#5b82ff59,transparent_45%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#0066ff_0%,#3540cc_45%,#6a1b9a_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,#4d94ff59,transparent_45%)]" />
 
         <div className="relative z-10">
           <p
             className="text-xs font-semibold uppercase tracking-[0.2em] mb-4"
-            style={{ color: '#a8e6dd' }}
+            style={{ color: '#c9dcff' }}
           >
             {site.nombreLegal}
           </p>
@@ -270,7 +310,7 @@ export default function ComplaintBook() {
               background: 'rgba(255,255,255,0.06)',
             }}
           >
-            <CalendarDays size={13} style={{ color: '#a8e6dd' }} />
+            <CalendarDays size={13} style={{ color: '#c9dcff' }} />
             <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.8)' }}>
               Hoja de reclamación · {fechaHoy}
             </span>
@@ -283,14 +323,14 @@ export default function ComplaintBook() {
         {registro && (
           <div
             className="animate-fade-up rounded-3xl p-6 sm:p-8 mb-8"
-            style={{ background: '#0c0e2a', boxShadow: '0 0 24px 4px rgba(44,229,201,0.18)' }}
+            style={{ background: '#0c0e2a', boxShadow: '0 0 24px 4px rgba(77,148,255,0.18)' }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-5">
               <div
                 className="flex flex-shrink-0 items-center justify-center w-14 h-14 rounded-full"
-                style={{ background: 'rgba(44,229,201,0.15)' }}
+                style={{ background: 'rgba(77,148,255,0.15)' }}
               >
-                <CheckCircle2 size={26} style={{ color: '#2ce5c9' }} />
+                <CheckCircle2 size={26} style={{ color: '#4d94ff' }} />
               </div>
 
               <div className="flex-1">
@@ -298,8 +338,9 @@ export default function ComplaintBook() {
                   Tu hoja de reclamación quedó registrada
                 </h2>
                 <p className="text-sm leading-6" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                  Registrada el {registro.fecha}. Guarda este código: con él puedes hacer seguimiento
-                  a tu caso por cualquiera de nuestros canales de atención.
+                  Registrada el {registro.fecha}. Te responderemos a más tardar el{' '}
+                  <strong className="font-semibold text-white">{registro.vence}</strong>. Guarda el
+                  número de hoja para consultar su estado.
                 </p>
               </div>
 
@@ -327,7 +368,7 @@ export default function ComplaintBook() {
                   style={{
                     width: 36,
                     height: 36,
-                    background: copiado ? '#2ce5c9' : 'rgba(255,255,255,0.1)',
+                    background: copiado ? '#4d94ff' : 'rgba(255,255,255,0.1)',
                     color: copiado ? '#0c0e2a' : 'white',
                   }}
                 >
@@ -340,11 +381,10 @@ export default function ComplaintBook() {
               className="flex items-start gap-2.5 mt-6 pt-5"
               style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <Info size={15} style={{ color: '#a8e6dd', flexShrink: 0, marginTop: 2 }} />
+              <Info size={15} style={{ color: '#c9dcff', flexShrink: 0, marginTop: 2 }} />
               <p className="text-xs leading-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                Este registro aún no se envía a nuestros sistemas: la integración está en desarrollo.
-                Para que tu caso sea atendido hoy, escríbenos al {site.telefono} o al {site.correo}{' '}
-                citando este código.
+                Te enviamos una copia de la hoja a tu correo. Si no la ves en unos minutos, revisa la
+                carpeta de spam o escríbenos al {site.telefono} citando el número de hoja.
               </p>
             </div>
           </div>
@@ -355,7 +395,7 @@ export default function ComplaintBook() {
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="rounded-3xl p-6 sm:p-8 space-y-6"
+            className="relative rounded-3xl p-6 sm:p-8 space-y-6"
             style={{ background: 'white', border: '1px solid #e2e8f4' }}
           >
             <div className="flex items-center gap-3">
@@ -363,7 +403,7 @@ export default function ComplaintBook() {
                 className="flex items-center justify-center w-10 h-10 rounded-full"
                 style={{ background: '#f5f7fc' }}
               >
-                <MessageSquareWarning size={18} style={{ color: '#2563eb' }} />
+                <MessageSquareWarning size={18} style={{ color: '#0066ff' }} />
               </div>
               <div>
                 <h2 className="text-xl font-bold" style={{ color: '#0c0e2a' }}>
@@ -402,9 +442,9 @@ export default function ComplaintBook() {
                       key={valor}
                       className="cursor-pointer rounded-2xl p-4 transition-all"
                       style={{
-                        border: `1px solid ${seleccionado ? '#2563eb' : '#e2e8f4'}`,
+                        border: `1px solid ${seleccionado ? '#0066ff' : '#e2e8f4'}`,
                         background: seleccionado ? '#f5f9ff' : 'white',
-                        boxShadow: seleccionado ? '0 0 0 3px rgba(37,99,235,0.1)' : 'none',
+                        boxShadow: seleccionado ? '0 0 0 3px rgba(0,102,255,0.1)' : 'none',
                       }}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -414,7 +454,7 @@ export default function ComplaintBook() {
                           value={valor}
                           checked={seleccionado}
                           onChange={handleChange}
-                          className="accent-[#2563eb]"
+                          className="accent-[#0066ff]"
                         />
                         <span className="text-sm font-bold" style={{ color: '#0c0e2a' }}>
                           {titulo}
@@ -433,7 +473,7 @@ export default function ComplaintBook() {
             <div className="space-y-4">
               <p
                 className="text-[11px] font-bold uppercase tracking-[0.15em] pb-2"
-                style={{ color: '#2563eb', borderBottom: '1px solid #e2e8f4' }}
+                style={{ color: '#0066ff', borderBottom: '1px solid #e2e8f4' }}
               >
                 1. Datos del consumidor
               </p>
@@ -541,7 +581,7 @@ export default function ComplaintBook() {
             <div className="space-y-4">
               <p
                 className="text-[11px] font-bold uppercase tracking-[0.15em] pb-2"
-                style={{ color: '#2563eb', borderBottom: '1px solid #e2e8f4' }}
+                style={{ color: '#0066ff', borderBottom: '1px solid #e2e8f4' }}
               >
                 2. Servicio contratado
               </p>
@@ -608,7 +648,7 @@ export default function ComplaintBook() {
             <div className="space-y-4">
               <p
                 className="text-[11px] font-bold uppercase tracking-[0.15em] pb-2"
-                style={{ color: '#2563eb', borderBottom: '1px solid #e2e8f4' }}
+                style={{ color: '#0066ff', borderBottom: '1px solid #e2e8f4' }}
               >
                 3. Detalle y pedido
               </p>
@@ -677,7 +717,7 @@ export default function ComplaintBook() {
                     setForm(prev => ({ ...prev, aceptaTerminos: e.target.checked }))
                     setErrores(prev => ({ ...prev, aceptaTerminos: undefined }))
                   }}
-                  className="mt-0.5 accent-[#2563eb]"
+                  className="mt-0.5 accent-[#0066ff]"
                   style={{ width: 16, height: 16, flexShrink: 0 }}
                 />
                 <span className="text-xs leading-6" style={{ color: 'rgba(12,14,42,0.7)' }}>
@@ -689,10 +729,24 @@ export default function ComplaintBook() {
               <MensajeError campo="aceptaTerminos" />
             </div>
 
+            {/* Campo trampa para bots */}
+            <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+              <label>
+                Sitio web
+                <input tabIndex={-1} autoComplete="off" value={sitioWeb} onChange={e => setSitioWeb(e.target.value)} />
+              </label>
+            </div>
+
+            {errorEnvio && (
+              <p role="alert" className="aparece rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800">
+                {errorEnvio}
+              </p>
+            )}
+
             <button
               type="submit"
               disabled={enviando}
-              className="inline-flex w-full items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold transition-transform"
+              className="presion inline-flex w-full items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold"
               style={{
                 background: enviando ? 'rgba(12,14,42,0.35)' : '#0c0e2a',
                 color: 'white',
@@ -706,122 +760,67 @@ export default function ComplaintBook() {
 
             <p className="text-xs text-center leading-6" style={{ color: 'rgba(12,14,42,0.45)' }}>
               La formulación del reclamo no impide acudir a otras vías de solución de controversias
-              ni es requisito previo para denunciar ante INDECOPI u OSIPTEL.
+              ni es requisito previo para interponer una denuncia ante el INDECOPI. Si tu reclamo es
+              por el servicio de telecomunicaciones y no estás conforme con nuestra respuesta, puedes
+              apelarla ante el TRASU.
             </p>
           </form>
 
-          {/* Información al usuario */}
-          <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start" aria-label="Información al usuario">
-            <div className="rounded-3xl bg-vivoo-ink p-6 shadow-[0_0_24px_4px_rgba(44,229,201,0.14)]">
-              <h2 className="text-lg font-bold text-white">¿Tienes un problema con tu servicio?</h2>
-              <p className="mt-2 text-sm leading-6 text-white/75">
-                Si el problema es con tu internet o tu TV, corresponde un{' '}
-                <strong className="font-semibold text-white">reclamo por el servicio</strong>, que
-                sigue el procedimiento de OSIPTEL. Por ejemplo:
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-1.5">
-                {['Facturación', 'Calidad del servicio', 'Condiciones contratadas', 'Instalación', 'Suspensión', 'Otros asuntos del servicio'].map(t => (
-                  <li key={t} className="rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-white/85">
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 text-sm leading-6 text-white/75">
-                Preséntalo por nuestros canales y te daremos un código de reclamo. Si no estás de
-                acuerdo con la respuesta, puedes apelar ante el TRASU de OSIPTEL.
-              </p>
-              <div className="mt-5 flex flex-col gap-2.5">
-                <a
-                  href={waLink('Hola Vivoo, quiero presentar un reclamo por mi servicio.')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-vivoo-signal px-5 py-3 text-sm font-bold text-vivoo-ink transition-colors hover:bg-vivoo-signal-dim focus-visible:outline-white"
-                >
-                  <MessageSquareWarning size={16} aria-hidden="true" />
-                  Reclamar por WhatsApp
-                </a>
-                <a
-                  href={site.telefonoHref}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-white focus-visible:outline-white"
-                >
-                  <Phone size={15} aria-hidden="true" />
-                  Llamar al {site.telefono}
-                </a>
+          {/* Antes de reclamar: soporte primero y marco legal breve */}
+          <aside className="order-first space-y-4 lg:order-none lg:sticky lg:top-28 lg:self-start" aria-label="Antes de registrar tu reclamo">
+            <div className="relative overflow-hidden rounded-3xl bg-vivoo-ink p-6">
+              <div
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_70%_at_100%_0%,rgba(106,27,154,0.5),transparent_60%)]"
+                aria-hidden="true"
+              />
+              <div className="relative">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
+                  <Headset size={20} aria-hidden="true" />
+                </span>
+                <h2 className="mt-4 text-lg font-bold text-white">¿Tu internet o TV falla?</h2>
+                <p className="mt-2 text-sm leading-6 text-white/75">
+                  Escribe primero a soporte técnico, disponible 24/7. La mayoría de fallas se resuelven
+                  en la misma conversación, sin trámites.
+                </p>
+                <div className="mt-5 flex flex-col gap-2.5">
+                  <a
+                    href={waLink('Hola Vivoo, tengo una falla con mi servicio.')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="presion inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-vivoo-ink hover:bg-vivoo-signal-dim focus-visible:outline-white"
+                  >
+                    <WhatsAppIcon className="h-4 w-4 text-vivoo-blue" />
+                    Escribir a soporte
+                  </a>
+                  <a
+                    href={site.telefonoHref}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-white focus-visible:outline-white"
+                  >
+                    <Phone size={15} aria-hidden="true" />
+                    Llamar al {site.telefono}
+                  </a>
+                </div>
               </div>
-              <Link to="/osiptel#reclamo" className="mt-4 inline-block text-sm font-semibold text-vivoo-signal underline decoration-vivoo-signal/40 underline-offset-4 hover:decoration-vivoo-signal">
-                Cómo funciona el reclamo por el servicio
-              </Link>
             </div>
 
             <div className="rounded-3xl border border-vivoo-mist bg-white p-6">
-              <h2 className="text-base font-bold text-vivoo-ink">¿Cuál uso?</h2>
-              <dl className="mt-3 space-y-3 text-sm leading-6">
-                <div>
-                  <dt className="font-semibold text-vivoo-ink">Libro de Reclamaciones (esta página)</dt>
-                  <dd className="text-vivoo-ink/65">
-                    Para dejar constancia de un reclamo o una queja como consumidor, como indica el
-                    Código de Protección y Defensa del Consumidor.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-vivoo-ink">Reclamo por el servicio</dt>
-                  <dd className="text-vivoo-ink/65">
-                    Para problemas del servicio de telecomunicaciones. Lo atendemos con el
-                    procedimiento de OSIPTEL.
-                  </dd>
-                </div>
-              </dl>
-              <p className="mt-3 text-sm leading-6 text-vivoo-ink/65">
-                Si no sabes cuál te corresponde, escríbenos y te orientamos.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-vivoo-mist bg-white p-6">
-              <h2 className="text-base font-bold text-vivoo-ink">Tus derechos como usuario</h2>
-              <p className="mt-2 text-sm leading-6 text-vivoo-ink/65">
-                Como usuario de telecomunicaciones puedes exigir información clara antes de
-                contratar, un recibo detallado y presentar reclamos con un código de seguimiento.
-              </p>
-              <Link to="/osiptel" className="mt-3 inline-block text-sm font-semibold text-vivoo-blue underline decoration-vivoo-blue/30 underline-offset-4 hover:decoration-vivoo-blue">
-                Conoce tus derechos
-              </Link>
-            </div>
-
-            <div className="rounded-3xl border border-vivoo-mist bg-white p-6">
-              <h2 className="text-base font-bold text-vivoo-ink">Normativa y fuentes oficiales</h2>
-              <ul className="mt-3 space-y-1">
-                {[
-                  { label: 'OSIPTEL', detalle: 'Regulador de telecomunicaciones', href: osiptel.web },
-                  { label: 'OSIPTEL en gob.pe', detalle: 'Trámites y normas', href: osiptel.gobPe },
-                  { label: 'INDECOPI', detalle: 'Protección al consumidor', href: consumidor.indecopi },
-                  { label: 'Portal del Consumidor', detalle: 'Derechos del consumidor', href: consumidor.portal },
-                ].map(({ label, detalle, href }) => (
-                  <li key={label}>
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="-mx-2 flex items-center justify-between gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-vivoo-cloud"
-                    >
-                      <span>
-                        <span className="block text-sm font-semibold text-vivoo-ink">{label}</span>
-                        <span className="block text-xs text-vivoo-ink/55">{detalle}</span>
-                      </span>
-                      <ExternalLink size={14} className="shrink-0 text-vivoo-ink/40" aria-label="(sitio externo)" />
-                    </a>
+              <h2 className="text-base font-bold text-vivoo-ink">Antes de registrar</h2>
+              <ul className="mt-4 space-y-3.5 text-sm leading-6 text-vivoo-ink/70">
+                {consideraciones.map(({ texto, norma }) => (
+                  <li key={texto} className="flex gap-2.5">
+                    <Scale size={15} className="mt-1 shrink-0 text-vivoo-purple" aria-hidden="true" />
+                    <span>
+                      {texto}
+                      {norma && <span className="mt-0.5 block text-xs text-vivoo-ink/45">{norma}</span>}
+                    </span>
                   </li>
                 ))}
               </ul>
-              <a
-                href={osiptel.fonoAyudaHref}
-                className="mt-3 flex items-center gap-2 border-t border-vivoo-mist pt-3 text-sm text-vivoo-ink/70"
-              >
-                <Landmark size={15} className="text-vivoo-blue" aria-hidden="true" />
-                Fono Ayuda de OSIPTEL: <strong className="font-semibold text-vivoo-ink">{osiptel.fonoAyuda}</strong>
-              </a>
             </div>
           </aside>
         </div>
+
+        <ConsultaReclamo />
       </div>
     </div>
   )

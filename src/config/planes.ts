@@ -1,19 +1,24 @@
 /**
- * Planes residenciales confirmados por Vivoo. Es la única fuente de planes
- * del sitio: portada, formulario de contacto y footer leen de aquí.
+ * Planes residenciales vigentes de Vivoo. Es la única fuente de planes
+ * del sitio: portada, formulario de contacto y servicios leen de aquí.
  *
  * Precios mensuales en soles, con IGV incluido.
  */
+
+/** Tipo de beneficio: decide el icono que lo acompaña en la tarjeta. */
+export type TipoBeneficio = 'fibra' | 'tv' | 'peliculas' | 'repetidor' | 'camara'
 
 export type Plan = {
   id: string
   nombre: string
   velocidad: number
   precio: number
-  /** Para qué hogar encaja, en una línea. */
-  uso: string
   /** Lo que el plan suma al internet de fibra (que va en todos). */
-  incluye: string[]
+  incluye: { tipo: TipoBeneficio; texto: string }[]
+  /** Color identificador del plan (DESIGN.md: colores de plan). Solo para el punto y los iconos. */
+  color: string
+  /** El plan que Vivoo presenta como el más elegido. */
+  popular?: boolean
   tv?: boolean
   repetidor?: boolean
   camara?: boolean
@@ -25,56 +30,42 @@ export const planes: Plan[] = [
     nombre: 'Básico',
     velocidad: 500,
     precio: 59,
-    uso: 'Para navegar y usar redes sociales',
-    incluye: [],
+    color: '#16a34a',
+    incluye: [{ tipo: 'fibra', texto: 'Internet de fibra óptica' }],
   },
   {
-    id: 'estandar',
-    nombre: 'Estándar',
+    id: 'standard',
+    nombre: 'Standard',
     velocidad: 800,
     precio: 69,
-    uso: 'Para streaming HD y trabajo remoto',
-    incluye: ['50 canales de TV digital'],
+    color: '#0066ff',
+    incluye: [{ tipo: 'tv', texto: '50 canales de TV digital' }],
     tv: true,
-  },
-  {
-    id: '1000',
-    nombre: '1000 Mbps',
-    velocidad: 1000,
-    precio: 89,
-    uso: 'La velocidad más alta, solo internet',
-    incluye: [],
   },
   {
     id: 'premium',
     nombre: 'Premium',
     velocidad: 1000,
     precio: 99,
-    uso: 'Para familias con muchos dispositivos',
-    incluye: ['+150 canales de TV digital', 'Películas y series'],
+    color: '#8b5cf6',
+    incluye: [
+      { tipo: 'tv', texto: '+150 canales de TV digital' },
+      { tipo: 'peliculas', texto: 'Películas y series' },
+    ],
+    popular: true,
     tv: true,
-  },
-  {
-    id: '1000-plus',
-    nombre: '1000 Mbps Plus',
-    velocidad: 1000,
-    precio: 139,
-    uso: 'Señal en toda la casa y una cámara para cuidarla',
-    incluye: ['2 repetidores WiFi', '1 cámara WiFi'],
-    repetidor: true,
-    camara: true,
   },
   {
     id: 'pro',
     nombre: 'Pro',
-    velocidad: 1500,
+    velocidad: 1000,
     precio: 139,
-    uso: 'Para gaming, streaming 4K y más',
+    color: '#f59e0b',
     incluye: [
-      '+150 canales de TV digital',
-      'Películas y series',
-      'Repetidor WiFi',
-      'Cámara IP',
+      { tipo: 'tv', texto: '+150 canales de TV digital' },
+      { tipo: 'peliculas', texto: 'Películas y series' },
+      { tipo: 'repetidor', texto: 'Repetidor WiFi incluido' },
+      { tipo: 'camara', texto: 'Cámara IP incluida' },
     ],
     tv: true,
     repetidor: true,
@@ -82,16 +73,8 @@ export const planes: Plan[] = [
   },
 ]
 
-/** Color de marca por velocidad (DESIGN.md: colores de plan). */
-export function colorVelocidad(velocidad: number): string {
-  if (velocidad >= 1500) return '#f59e0b'
-  if (velocidad >= 1000) return '#a78bfa'
-  if (velocidad >= 800) return '#3b82f6'
-  return '#22c55e'
-}
-
 export const precioDesde = Math.min(...planes.map(p => p.precio))
 
 export function nombreCompleto(plan: Plan): string {
-  return plan.nombre.includes('Mbps') ? `Plan ${plan.nombre}` : `Plan ${plan.nombre} ${plan.velocidad} Mbps`
+  return `Plan Vivoo ${plan.nombre} ${plan.velocidad} Mbps`
 }

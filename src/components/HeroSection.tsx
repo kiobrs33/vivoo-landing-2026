@@ -13,7 +13,7 @@ export default function HeroSection() {
       className="relative isolate flex min-h-[92svh] items-center overflow-hidden bg-vivoo-ink"
     >
       {/* Cielo eléctrico */}
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(135deg,#1a3dff_0%,#3b2fd8_45%,#5c1fb8_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(135deg,#0066ff_0%,#3540cc_45%,#6a1b9a_100%)]" />
 
       {/* El Misti, centrado en su mitad y dentro de su propio cielo eléctrico */}
       <div className="pointer-events-none absolute left-1/2 top-14 -z-10 -translate-x-1/2 sm:left-auto sm:right-[-5rem] sm:top-1/2 sm:translate-x-0 sm:-translate-y-1/2 lg:right-[-3rem] xl:right-[4%]">
@@ -51,7 +51,7 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-wrap gap-3 animate-fade-up-delay-3">
             <Link
               to="/#planes"
-              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-bold text-vivoo-ink transition-transform hover:scale-[1.03] focus-visible:outline-white"
+              className="presion inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-bold text-vivoo-ink hover:scale-[1.03] focus-visible:outline-white"
             >
               Ver planes
             </Link>
@@ -59,7 +59,7 @@ export default function HeroSection() {
               href={waLink('Hola Vivoo, quiero contratar internet para mi hogar.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white/10 focus-visible:outline-white"
+              className="presion inline-flex items-center justify-center rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold text-white hover:border-white hover:bg-white/10 focus-visible:outline-white"
             >
               Quiero contratar
             </a>

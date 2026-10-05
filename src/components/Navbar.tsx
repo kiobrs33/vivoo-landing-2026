@@ -20,9 +20,9 @@ const navegacion: Record<Contexto, { base: string; mensaje: string; links: Enlac
     links: [
       { label: 'Inicio', seccion: '' },
       { label: 'Planes', seccion: 'planes' },
+      { label: 'Cobertura', seccion: 'cobertura' },
       { label: 'Beneficios', seccion: 'beneficios' },
       { label: 'Servicios', seccion: 'servicios' },
-      { label: 'Cobertura', ruta: '/cobertura' },
       { label: 'FAQ', ruta: '/faq' },
       { label: 'Pagos', ruta: '/pagos' },
     ],
@@ -234,7 +234,7 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <div className="mt-auto space-y-3 pt-8">
+          <div className="menu-acciones mt-auto space-y-3 pt-8">
             <a
               href={waLink(mensaje)}
               target="_blank"

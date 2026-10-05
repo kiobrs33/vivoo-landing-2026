@@ -9,13 +9,14 @@ type Pregunta = {
   pendiente?: boolean
 }
 
-const faqs: { category: string; items: Pregunta[] }[] = [
+const faqs = ([
   {
     category: 'General',
     items: [
       { q: '¿Qué tipo de internet ofrece Vivoo?', a: 'Vivoo ofrece internet de fibra óptica simétrica: la velocidad de subida es igual a la de bajada. Es ideal para videollamadas, trabajo remoto y streaming.' },
       { q: '¿Vivoo tiene contratos de permanencia?', a: 'No. Todos nuestros planes son sin permanencia. Puedes cancelar en cualquier momento sin penalidades.' },
-      { q: '¿En qué distritos de Arequipa tienen cobertura?', a: 'Tenemos cobertura en Cercado, Yanahuara, Cayma, Sachaca, Cerro Colorado, Paucarpata, Miraflores, Mariano Melgar, Alto Selva Alegre, Jacobo Hunter, José Luis Bustamante y Rivero y Socabaya. Consulta la página de cobertura para verificar tu distrito.' },
+      { q: '¿Dónde tienen cobertura?', a: 'Nuestra red de fibra cubre la ciudad de Arequipa y El Pedregal (Majes). En la página de cobertura puedes ver el mapa y comprobar tu ubicación; si tienes dudas sobre tu dirección exacta, escríbenos por WhatsApp.' },
+      { q: '¿Cuál es su horario de atención?', a: `La atención comercial es ${site.horarioAtencion.toLowerCase()}. El soporte técnico atiende las 24 horas, todos los días.` },
       { q: '¿Cuánto tiempo tarda la instalación?', a: 'La instalación se realiza entre 24 y 48 horas después de confirmar tu plan.' },
     ],
   },
@@ -25,7 +26,7 @@ const faqs: { category: string; items: Pregunta[] }[] = [
       { q: '¿Los precios incluyen IGV?', a: 'Sí, todos los precios mostrados en nuestro sitio incluyen IGV. No hay costos ocultos.' },
       { q: '¿El router está incluido?', a: 'Sí, todos los planes incluyen el router WiFi.' },
       { q: '¿Hay costo de instalación?', a: 'No. La instalación es gratuita en todos los planes.' },
-      { q: '¿Puedo cambiar de plan después de contratar?', a: 'Sí, puedes cambiar de plan en cualquier momento. El cambio se aplica al siguiente ciclo de facturación. Contáctanos por WhatsApp para gestionarlo.', pendiente: true },
+      { q: '¿Puedo cambiar de plan después de contratar?', a: 'Sí. Escríbenos por WhatsApp y te ayudamos a cambiar a otro plan. Te confirmamos desde qué recibo se aplica el nuevo precio.' },
     ],
   },
   {
@@ -33,20 +34,21 @@ const faqs: { category: string; items: Pregunta[] }[] = [
     items: [
       { q: '¿Qué tan estable es la conexión de fibra óptica?', a: 'La fibra óptica transmite la señal con luz, por eso no se ve afectada por las interferencias eléctricas que sí afectan a los cables de cobre.' },
       { q: '¿Qué hago si tengo problemas de conexión?', a: `Escríbenos por WhatsApp al ${site.whatsappVisible} o llámanos al ${site.telefono}. Nuestro soporte técnico atiende las 24 horas, todos los días.` },
-      { q: '¿Cuántos dispositivos puedo conectar?', a: 'Depende del plan. El plan Básico soporta cómodamente 1-3 dispositivos, el Estándar 3-6, el Premium 6-10 y el Pro más de 10 dispositivos simultáneos.', pendiente: true },
-      { q: '¿Ofrecen IP estática?', a: 'Sí. Los planes Estándar, Premium y Pro incluyen una o más direcciones IP estáticas sin costo adicional.', pendiente: true },
+      { q: '¿Cuántos dispositivos puedo conectar?', a: 'Puedes conectar los equipos que necesites; lo que cambia con el plan es la velocidad que se reparte entre ellos. Como referencia: 500 Mbps va bien para un hogar con varios equipos a la vez, 800 Mbps para streaming y trabajo remoto, y 1,000 Mbps para familias con streaming en 4K, gaming y uso intensivo. Si tu casa tiene varios pisos, un repetidor WiFi ayuda a que la señal llegue a todos los ambientes.' },
+      { q: '¿Ofrecen IP fija?', a: 'Los planes para hogar funcionan con IP dinámica, que es lo que necesita la mayoría de usuarios. Si requieres IP fija (por ejemplo, para cámaras, servidores o acceso remoto), consúltanos por WhatsApp. En los servicios para empresas la IP fija está disponible.' },
+      { q: '¿Por qué mi velocidad por WiFi es menor que la contratada?', a: 'El WiFi depende de la distancia al router, las paredes y la capacidad de cada equipo. Para medir la velocidad real, conecta una computadora al router con cable. Por ley, la velocidad mínima garantizada es el 70% de la contratada (Ley N° 31207).' },
     ],
   },
   {
     category: 'Pagos',
     items: [
       { q: '¿Cómo puedo pagar mi recibo?', a: 'Puedes pagar con Yape (Yape Servicios), BCP Banca Móvil o en agentes y ventanillas BCP. En la página Formas de pago tienes los pasos de cada uno.' },
-      { q: '¿Cuándo se emite el recibo?', a: 'El recibo se emite el primer día de cada mes y se envía a tu correo electrónico. El pago debe realizarse dentro de los 5 primeros días del mes.', pendiente: true },
-      { q: '¿Puedo activar el pago automático?', a: 'Sí, ofrecemos débito automático a tarjeta de crédito o cuenta bancaria. Contáctanos para configurarlo.', pendiente: true },
-      { q: '¿Emiten boleta y factura?', a: 'Sí, emitimos tanto boleta como factura electrónica con validez ante SUNAT. Indícanos tu preferencia al contratar.', pendiente: true },
+      { q: '¿Cuándo se emite el recibo?', a: 'El recibo es mensual. Te hacemos llegar el monto y la fecha de vencimiento; si no lo recibiste o tienes dudas, escríbenos con el DNI, CE o RUC del titular.' },
+      { q: '¿Qué pasa si me atraso en el pago?', a: 'Te recomendamos pagar antes del vencimiento para evitar la suspensión del servicio. Si tuviste un inconveniente, escríbenos: te indicamos cómo regularizarlo y, una vez registrado el pago, el servicio se reactiva.' },
+      { q: '¿Emiten boleta y factura?', a: 'Sí, emitimos comprobantes electrónicos. Si necesitas factura, indícanos el RUC de tu empresa al contratar.' },
     ],
   },
-]
+] as { category: string; items: Pregunta[] }[])
   .map(grupo => ({ ...grupo, items: grupo.items.filter(i => import.meta.env.DEV || !i.pendiente) }))
   .filter(grupo => grupo.items.length > 0)
 
@@ -74,11 +76,11 @@ export default function FAQPage() {
     <div style={{ background: '#f5f7fc', minHeight: '100vh' }}>
       {/* Hero */}
       <div className="relative pt-32 pb-16 px-4 text-center overflow-hidden rounded-b-[2rem]">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#1a3dff_0%,#3b2fd8_45%,#5c1fb8_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,#5b82ff59,transparent_45%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#0066ff_0%,#3540cc_45%,#6a1b9a_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,#4d94ff59,transparent_45%)]" />
 
         <div className="relative z-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: '#a8e6dd' }}>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: '#c9dcff' }}>
           Preguntas frecuentes
         </p>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">
@@ -166,15 +168,26 @@ export default function FAQPage() {
                           color: 'rgba(12,14,42,0.4)',
                           flexShrink: 0,
                           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s',
+                          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                         }}
                       />
                     </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5" style={{ background: '#f5f7fc' }}>
-                        <p className="text-sm leading-relaxed" style={{ color: 'rgba(12,14,42,0.7)' }}>{item.a}</p>
+                    <div
+                      className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                        isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                      }`}
+                      style={{ background: '#f5f7fc' }}
+                      inert={!isOpen}
+                    >
+                      <div className="overflow-hidden">
+                        <p
+                          className={`px-5 pb-5 text-sm leading-relaxed transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+                          style={{ color: 'rgba(12,14,42,0.7)' }}
+                        >
+                          {item.a}
+                        </p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )
               })}
@@ -196,7 +209,7 @@ export default function FAQPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-transform hover:scale-[1.03]"
-            style={{ background: '#2ce5c9', color: '#0c0e2a' }}
+            style={{ background: '#4d94ff', color: '#0c0e2a' }}
           >
             Hablar por WhatsApp
           </a>

@@ -22,10 +22,11 @@ export const site = {
   whatsapp: '5154350040',
   whatsappVisible: '+51 54 350040',
 
-  /** Sin confirmar: no se publica hasta que Vivoo lo confirme. */
-  horarioAtencion: 'Lun–Sáb 8am–8pm',
+  /** Atención comercial (confirmado por Vivoo). El soporte técnico es 24/7. */
+  horarioAtencion: 'De 8 a. m. a 8 p. m.',
 
-  facebook: 'https://www.facebook.com/p/Vivoo-Telecom-61592327309011/',
+  facebook: 'https://www.facebook.com/share/18bz8UDubi/',
+  tiktok: 'https://www.tiktok.com/@vivoo.net.pe',
 } as const
 
 /** Construye un enlace de WhatsApp con el mensaje ya codificado. */
@@ -33,21 +34,3 @@ export function waLink(mensaje?: string): string {
   const base = `https://wa.me/${site.whatsapp}`
   return mensaje ? `${base}?text=${encodeURIComponent(mensaje)}` : base
 }
-
-/**
- * Entidad reguladora de telecomunicaciones en Perú y fuentes oficiales.
- * Verificado en osiptel.gob.pe: el Fono Ayuda para usuarios es el 1844.
- */
-export const osiptel = {
-  fonoAyuda: '1844',
-  fonoAyudaHref: 'tel:1844',
-  web: 'https://www.osiptel.gob.pe',
-  gobPe: 'https://www.gob.pe/osiptel',
-  normativas: 'https://www.osiptel.gob.pe/portal-del-usuario/lo-que-debes-saber/normativas-de-usuarios/',
-} as const
-
-/** Fuentes oficiales de protección al consumidor. */
-export const consumidor = {
-  indecopi: 'https://www.gob.pe/indecopi',
-  portal: 'https://consumidor.gob.pe',
-} as const

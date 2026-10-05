@@ -14,44 +14,50 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { site, waLink } from '../config/site'
-import { Encabezado, Pendiente, WhatsAppIcon, campoClaro, etiquetaCampo } from '../components/ui'
+import { Encabezado, WhatsAppIcon, campoClaro, etiquetaCampo } from '../components/ui'
 
 /**
- * Página corporativa. Los datos comerciales específicos (precios, velocidades,
- * SLA, tiempos de atención, soluciones por tipo de empresa) los entregará
- * Rolando; mientras tanto no se publica ninguna cifra.
+ * Página corporativa. La información es general y referencial (la pidió Vivoo
+ * así mientras Rolando entrega las condiciones comerciales). No incluye precios
+ * ni cifras de SLA: esos se definen en cada propuesta.
  */
 
-const servicios: { Icon: LucideIcon; title: string; description: string }[] = [
+const servicios: { Icon: LucideIcon; title: string; description: string; detalles: string[] }[] = [
   {
     Icon: Gauge,
     title: 'Internet dedicado simétrico',
     description: 'Ancho de banda dedicado a tu empresa, con la misma velocidad de subida y de bajada.',
+    detalles: ['Capacidad garantizada', 'Velocidad a medida', 'Monitoreo del enlace'],
   },
   {
     Icon: Network,
     title: 'Enlaces punto a punto',
     description: 'Conecta tus sedes en Arequipa con una red privada de fibra, sin pasar por internet público.',
+    detalles: ['Red privada', 'Baja latencia', 'Datos entre sedes'],
   },
   {
     Icon: Server,
     title: 'IP fija y rangos públicos',
     description: 'Direcciones IP fijas para publicar servidores, VPN corporativas o sistemas de acceso remoto.',
+    detalles: ['IPv4 pública fija', 'Bloques según tu necesidad'],
   },
   {
     Icon: Router,
     title: 'Enlace de respaldo',
     description: 'Una segunda vía de conexión para que tu operación siga funcionando ante una caída.',
+    detalles: ['Conmutación automática', 'Continuidad de la operación'],
   },
   {
     Icon: Cctv,
     title: 'Videovigilancia IP',
     description: 'Cámaras y monitoreo remoto de tus locales sobre el mismo enlace.',
+    detalles: ['Vista desde el celular', 'Grabación continua', 'Instalación incluida en la propuesta'],
   },
   {
     Icon: ShieldCheck,
     title: 'Seguridad gestionada',
     description: 'Firewall, filtrado de contenido y redes separadas para invitados, administrados por nuestro equipo.',
+    detalles: ['Firewall gestionado', 'WiFi de invitados aparte', 'Filtrado de contenido'],
   },
 ]
 
@@ -78,8 +84,23 @@ const beneficios: { Icon: LucideIcon; title: string; description: string }[] = [
   },
 ]
 
-/** Soluciones por tipo de empresa. Vacío hasta recibir la información de Rolando. */
-const solucionesPorTipo: { title: string; description: string }[] = []
+/** Compromisos de servicio generales para clientes empresariales. */
+const compromisos = [
+  { title: 'Soporte técnico 24/7', description: 'Te atendemos a cualquier hora, con técnicos en Arequipa para visitas a tu local.' },
+  { title: 'Acuerdo de nivel de servicio', description: 'La disponibilidad y los tiempos de respuesta quedan por escrito en tu contrato.' },
+  { title: 'Ejecutivo asignado', description: 'Una sola persona de contacto para propuestas, ampliaciones y seguimiento.' },
+  { title: 'Factura electrónica', description: 'Comprobantes a nombre de tu empresa, con tu RUC.' },
+]
+
+/** Soluciones por tipo de empresa, pensadas para el mercado de Arequipa. */
+const solucionesPorTipo: { title: string; description: string }[] = [
+  { title: 'Comercios y tiendas', description: 'Internet estable para POS, pagos con tarjeta y QR, cámaras y WiFi para clientes.' },
+  { title: 'Oficinas y estudios', description: 'Videollamadas, sistemas en la nube y VPN para trabajar desde casa o desde otra sede.' },
+  { title: 'Colegios e institutos', description: 'Aulas conectadas, plataformas virtuales y filtrado de contenido para alumnos.' },
+  { title: 'Clínicas y consultorios', description: 'Historias clínicas, sistemas de citas e imágenes médicas con una conexión que no se cae.' },
+  { title: 'Hoteles y restaurantes', description: 'WiFi para huéspedes separado de la red de caja y reservas, ideal para el turismo de la ciudad.' },
+  { title: 'Agroindustria en Majes y El Pedregal', description: 'Conectividad para oficinas de fundo, plantas de empaque y cámaras de seguridad en campo.' },
+]
 
 const interes = [...servicios.map(s => s.title), 'Aún no lo sé, quiero asesoría']
 
@@ -89,7 +110,7 @@ type Campo = keyof typeof inicial
 function Hero() {
   return (
     <section id="inicio" className="relative isolate overflow-hidden rounded-b-[2rem] bg-vivoo-ink pb-20 pt-32 sm:pb-24 sm:pt-36">
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(135deg,#1a3dff_0%,#3b2fd8_45%,#5c1fb8_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(135deg,#0066ff_0%,#3540cc_45%,#6a1b9a_100%)]" />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
@@ -276,7 +297,7 @@ export default function CorporatePage() {
             Los combinamos según lo que necesitas, desde una oficina hasta varias sedes.
           </Encabezado>
           <ul className="mt-10 grid border-t border-vivoo-mist sm:grid-cols-2 sm:gap-x-12">
-            {servicios.map(({ Icon, title, description }) => (
+            {servicios.map(({ Icon, title, description, detalles }) => (
               <li key={title} className="flex gap-5 border-b border-vivoo-mist py-6">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-vivoo-menta">
                   <Icon size={19} className="text-vivoo-blue" aria-hidden="true" />
@@ -284,16 +305,20 @@ export default function CorporatePage() {
                 <div>
                   <h3 className="text-lg font-bold text-vivoo-ink">{title}</h3>
                   <p className="mt-1.5 text-base leading-relaxed text-vivoo-ink/65">{description}</p>
+                  <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={`Características de ${title}`}>
+                    {detalles.map(d => (
+                      <li key={d} className="rounded-full border border-vivoo-mist bg-vivoo-cloud px-2.5 py-1 text-[11px] font-semibold text-vivoo-ink/65">
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </li>
             ))}
           </ul>
-          <div className="mt-6">
-            <Pendiente>
-              velocidades, precios, SLA, direcciones IP y condiciones de cada servicio corporativo
-              (los proporcionará Rolando).
-            </Pendiente>
-          </div>
+          <p className="mt-6 text-sm text-vivoo-ink/55">
+            Velocidades, equipos y precios se definen en cada propuesta según tu operación.
+          </p>
         </div>
       </section>
 
@@ -314,12 +339,19 @@ export default function CorporatePage() {
               </li>
             ))}
           </ul>
-          <div className="mt-8">
-            <Pendiente>
-              condiciones de soporte (tiempos de atención, monitoreo, ejecutivo asignado, SLA) y
-              facturación electrónica a nombre de la empresa. No publicar hasta que Rolando las
-              confirme.
-            </Pendiente>
+          <div className="mt-12 rounded-3xl border border-vivoo-mist bg-vivoo-cloud p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-vivoo-ink">Lo que incluye ser cliente empresa</h3>
+            <ul className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+              {compromisos.map(c => (
+                <li key={c.title}>
+                  <p className="flex items-center gap-2 text-sm font-semibold text-vivoo-ink">
+                    <ShieldCheck size={16} className="text-vivoo-purple" aria-hidden="true" />
+                    {c.title}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-6 text-vivoo-ink/65">{c.description}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -327,7 +359,7 @@ export default function CorporatePage() {
       {/* Soluciones */}
       <section id="soluciones" className="bg-vivoo-cloud py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-vivoo-ink p-7 shadow-[0_0_24px_4px_rgba(44,229,201,0.14)] sm:p-10">
+          <div className="rounded-3xl bg-vivoo-ink p-7 shadow-[0_0_24px_4px_rgba(77,148,255,0.14)] sm:p-10">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center">
               <Encabezado tono="oscuro" etiqueta="Soluciones" titulo="Sin planes cerrados:" acento="una propuesta para tu empresa">
                 Dos empresas del mismo tamaño pueden necesitar enlaces muy distintos. Por eso
@@ -358,7 +390,7 @@ export default function CorporatePage() {
           {solucionesPorTipo.length > 0 && (
             <div className="mt-10">
               <h3 className="text-2xl font-bold text-vivoo-ink">Soluciones por tipo de empresa</h3>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {solucionesPorTipo.map(s => (
                   <article key={s.title} className="rounded-3xl border border-vivoo-mist bg-white p-6">
                     <h4 className="text-base font-bold text-vivoo-ink">{s.title}</h4>
@@ -368,13 +400,7 @@ export default function CorporatePage() {
               </div>
             </div>
           )}
-          <div className="mt-6">
-            <Pendiente>
-              soluciones por tipo de empresa (por ejemplo: pequeñas empresas, comercios, oficinas,
-              empresas con varias sedes). Completar <code>solucionesPorTipo</code> en
-              CorporatePage.tsx con la información de Rolando; la sección aparece sola.
-            </Pendiente>
-          </div>
+
         </div>
       </section>
 

@@ -1,35 +1,32 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, BookOpenText, FileWarning, Landmark, Scale } from 'lucide-react'
-import { osiptel } from '../config/site'
+import { ArrowUpRight, BookOpenText, CircleHelp, Headset, Wallet } from 'lucide-react'
+import { waLink } from '../config/site'
 
-/**
- * Información breve para usuarios. Resume y enlaza; el detalle vive en
- * /osiptel, /libro-de-reclamaciones y en las fuentes oficiales.
- */
+/** Accesos rápidos para clientes actuales: pagos, ayuda, soporte y Libro de Reclamaciones. */
 const temas = [
   {
-    Icon: Scale,
-    title: 'Tus derechos como usuario',
-    detalle: 'Qué puedes exigir a cualquier operador de telecomunicaciones.',
-    to: '/osiptel',
+    Icon: Wallet,
+    title: 'Paga tu recibo',
+    detalle: 'Yape, BCP Banca Móvil o agentes BCP.',
+    to: '/pagos',
   },
   {
-    Icon: FileWarning,
-    title: 'Reclamos por el servicio',
-    detalle: 'Facturación, calidad o instalación: cómo presentar tu reclamo.',
-    to: '/osiptel#reclamo',
+    Icon: CircleHelp,
+    title: 'Preguntas frecuentes',
+    detalle: 'Instalación, planes y tu servicio.',
+    to: '/faq',
+  },
+  {
+    Icon: Headset,
+    title: 'Soporte técnico 24/7',
+    detalle: '¿Una falla? Escríbenos y lo resolvemos.',
+    href: waLink('Hola Vivoo, necesito soporte técnico.'),
   },
   {
     Icon: BookOpenText,
     title: 'Libro de Reclamaciones',
-    detalle: 'Deja constancia de un reclamo o una queja como consumidor.',
+    detalle: 'Registra un reclamo o una queja.',
     to: '/libro-de-reclamaciones',
-  },
-  {
-    Icon: Landmark,
-    title: 'OSIPTEL',
-    detalle: `Organismo regulador. Fono Ayuda: ${osiptel.fonoAyuda}.`,
-    href: osiptel.web,
   },
 ]
 
@@ -38,7 +35,7 @@ export default function UserInfoSection() {
     <section id="usuarios" aria-labelledby="usuarios-titulo" className="border-t border-vivoo-mist bg-white py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 id="usuarios-titulo" className="text-xl font-bold text-vivoo-ink">
-          Información para usuarios
+          Si ya eres cliente
         </h2>
         <ul className="mt-6 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
           {temas.map(({ Icon, title, detalle, to, href }) => {
@@ -48,7 +45,7 @@ export default function UserInfoSection() {
                 <span>
                   <span className="flex items-center gap-1 text-sm font-semibold text-vivoo-ink group-hover:text-vivoo-blue">
                     {title}
-                    {href && <ArrowUpRight size={14} aria-label="(sitio externo)" />}
+                    {href && <ArrowUpRight size={14} aria-label="(abre WhatsApp)" />}
                   </span>
                   <span className="mt-0.5 block text-sm leading-6 text-vivoo-ink/60">{detalle}</span>
                 </span>

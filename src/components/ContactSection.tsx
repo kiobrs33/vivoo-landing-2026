@@ -1,9 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
-import { Mail, Phone } from 'lucide-react'
+import { Clock, Mail, Phone } from 'lucide-react'
 import { site, waLink } from '../config/site'
 import { distritos } from '../config/distritos'
 import { nombreCompleto, planes } from '../config/planes'
-import { FacebookIcon, WhatsAppIcon } from './ui'
+import { FacebookIcon, TikTokIcon, WhatsAppIcon } from './ui'
 
 const serviciosDeInteres = [
   ...planes.map(p => `${nombreCompleto(p)} (S/ ${p.precio})`),
@@ -35,7 +35,7 @@ function validar(f: typeof inicial): Errores {
 }
 
 const campo =
-  'w-full rounded-xl border border-white/20 bg-white/[0.08] px-4 py-3 text-sm text-white placeholder:text-white/45 outline-none transition-[border-color,box-shadow] duration-200 focus:border-vivoo-signal focus:shadow-[0_0_0_3px_rgba(44,229,201,0.2)] aria-[invalid=true]:border-red-300'
+  'w-full rounded-xl border border-white/20 bg-white/[0.08] px-4 py-3 text-sm text-white placeholder:text-white/45 outline-none transition-[border-color,box-shadow] duration-200 focus:border-vivoo-signal focus:shadow-[0_0_0_3px_rgba(77,148,255,0.2)] aria-[invalid=true]:border-red-300'
 const etiqueta = 'text-xs font-semibold uppercase tracking-wide text-white/70'
 
 export default function ContactSection() {
@@ -78,12 +78,14 @@ export default function ContactSection() {
     { Icon: WhatsAppIcon, label: 'WhatsApp', value: site.whatsappVisible, href: waLink(), externo: true },
     { Icon: Mail, label: 'Correo', value: site.correo, href: site.correoHref, externo: false },
     { Icon: FacebookIcon, label: 'Facebook', value: 'Vivoo Telecom', href: site.facebook, externo: true },
+    { Icon: TikTokIcon, label: 'TikTok', value: '@vivoo.net.pe', href: site.tiktok, externo: true },
+    { Icon: Clock, label: 'Horario de atención', value: `${site.horarioAtencion} · Soporte 24/7`, href: undefined, externo: false },
   ]
 
   return (
     <section id="contacto" className="bg-vivoo-cloud py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#1a3dff_0%,#3b2fd8_45%,#5c1fb8_100%)] px-5 py-10 sm:px-10 sm:py-14">
+        <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#0066ff_0%,#3540cc_45%,#6a1b9a_100%)] px-5 py-10 sm:px-10 sm:py-14">
           <div className="relative grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14">
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-vivoo-signal-dim">
@@ -98,23 +100,31 @@ export default function ContactSection() {
               </p>
 
               <ul className="mt-8 divide-y divide-white/15 border-y border-white/15">
-                {canales.map(({ Icon, label, value, href, externo }) => (
-                  <li key={label}>
-                    <a
-                      href={href}
-                      {...(externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="group flex items-center gap-4 py-3.5 focus-visible:outline-white"
-                    >
+                {canales.map(({ Icon, label, value, href, externo }) => {
+                  const contenido = (
+                    <>
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors group-hover:bg-white/20">
-                        <Icon width={17} height={17} className="text-vivoo-signal" aria-hidden="true" />
+                        <Icon width={17} height={17} className="text-white" aria-hidden="true" />
                       </span>
                       <span>
                         <span className="block text-xs text-white/60">{label}</span>
                         <span className="block text-sm font-semibold text-white">{value}</span>
                       </span>
-                    </a>
-                  </li>
-                ))}
+                    </>
+                  )
+                  const clase = 'group flex items-center gap-4 py-3.5 focus-visible:outline-white'
+                  return (
+                    <li key={label}>
+                      {href ? (
+                        <a href={href} {...(externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={clase}>
+                          {contenido}
+                        </a>
+                      ) : (
+                        <div className={clase}>{contenido}</div>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
 

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, BookOpenText, Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowUpRight, BookOpenText, Clock, Mail, MapPin, Phone } from 'lucide-react'
 import vivooLogo from '../images/vivoo-logo-white.png'
-import { osiptel, site, waLink } from '../config/site'
-import { FacebookIcon } from './ui'
+import { site, waLink } from '../config/site'
+import { FacebookIcon, TikTokIcon } from './ui'
 
 type Enlace = { label: string; to?: string; href?: string }
 
@@ -31,14 +31,6 @@ const columnas: { titulo: string; enlaces: Enlace[] }[] = [
       { label: 'Preguntas frecuentes', to: '/faq' },
       { label: 'Formas de pago', to: '/pagos' },
       { label: 'Soporte por WhatsApp', href: waLink('Hola Vivoo, necesito soporte técnico.') },
-      { label: 'Reclamos por el servicio', to: '/osiptel#reclamo' },
-    ],
-  },
-  {
-    titulo: 'Legal',
-    enlaces: [
-      { label: 'Derechos del usuario', to: '/osiptel' },
-      { label: 'OSIPTEL', href: osiptel.web },
     ],
   },
 ]
@@ -49,7 +41,7 @@ export default function Footer() {
   return (
     <footer className="bg-vivoo-ink text-white/70">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.6fr_repeat(3,1fr)]">
           <div className="col-span-2 lg:col-span-1">
             <Link to="/" className="inline-block select-none" aria-label="Vivoo, inicio">
               <img src={vivooLogo} alt="Vivoo" width={100} />
@@ -75,17 +67,29 @@ export default function Footer() {
                 <MapPin size={14} className="text-vivoo-signal" aria-hidden="true" />
                 {site.ciudad}
               </li>
+              <li className="flex items-center gap-2">
+                <Clock size={14} className="text-vivoo-signal" aria-hidden="true" />
+                {site.horarioAtencion} · Soporte 24/7
+              </li>
             </ul>
 
-            <a
-              href={site.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Vivoo en Facebook"
-              className="mt-5 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
-            >
-              <FacebookIcon width={15} height={15} />
-            </a>
+            <div className="mt-5 flex gap-2">
+              {[
+                { href: site.facebook, label: 'Vivoo en Facebook', Icon: FacebookIcon },
+                { href: site.tiktok, label: 'Vivoo en TikTok', Icon: TikTokIcon },
+              ].map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="presion flex h-9 w-9 items-center justify-center rounded-full border border-white/15 hover:bg-white/10"
+                >
+                  <Icon width={15} height={15} />
+                </a>
+              ))}
+            </div>
           </div>
 
           {columnas.map(col => (
