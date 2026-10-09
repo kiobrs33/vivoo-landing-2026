@@ -1,11 +1,14 @@
 {
   "description": "Vivoo Webpage",
-  "favicon": "/vivoo-favicon.png",
   "robots": {
     "index": false
   },
   "accessibility": {
     "addBypassLinks": false,
     "ignoreReducedMotion": false
-  }
+  },
+  "icons": {
+    "icon": "/favicon-32.png"
+  },
+  "language": "es"
 }
