@@ -6,7 +6,7 @@ import { useSenal } from '../lib/useSenal'
 
 /** Video tutorial de pago con Yape (Cloudinary, versión optimizada a 720 px). */
 const videoBase = 'https://res.cloudinary.com/dks25ivcf/video/upload'
-const videoId = 'v1783959437/vivoo-telecom/vivoo-pago-yape_jpgv9c'
+const videoId = 'v1791568571/vivoo-telecom/vivoo-metodo-pago-v2_lw9by1'
 const videoYape = `${videoBase}/q_auto,w_720/${videoId}.mp4`
 const posterYape = `${videoBase}/so_0,q_auto,w_720/${videoId}.jpg`
 
@@ -159,7 +159,7 @@ export default function Payment() {
                 />
               </div>
               <figcaption className="mt-3 text-center text-xs text-white/50">
-                Cómo pagar con Yape · 35 s
+                Cómo pagar con Yape · 40 s
               </figcaption>
             </figure>
           </div>
